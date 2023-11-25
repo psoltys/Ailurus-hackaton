@@ -1,9 +1,7 @@
 package com.hactheclimatetest1.hacktheclimatetest1;
 
-import com.hactheclimatetest1.hacktheclimatetest1.model.BusStop;
 import com.hactheclimatetest1.hacktheclimatetest1.model.ParkingMeter;
 import com.hactheclimatetest1.hacktheclimatetest1.model.Zone;
-import com.hactheclimatetest1.hacktheclimatetest1.repository.BusStopRepository;
 import com.hactheclimatetest1.hacktheclimatetest1.repository.ParkingMeterRepository;
 import com.hactheclimatetest1.hacktheclimatetest1.repository.ZoneRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -243,14 +241,4 @@ public class BusStopDBLoad {
 
         };
     }
-/*
-    @Bean
-    CommandLineRunner init2Database(ParkingMeterRepository repository) {
-        return args -> {
-            repository.save(new BusStop("Wilanowska", 1.0, 2.0));
-            repository.save(new BusStop("Politechnika", 2.0, 3.0));
-            repository.save(new BusStop("Centrum", 5.0, 4.0));
-            repository.save(new BusStop("Rondo Waszyngtona", 21.0, 37.0));
-        };
-    }*/
 }
