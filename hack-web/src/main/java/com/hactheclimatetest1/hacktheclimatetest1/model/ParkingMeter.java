@@ -30,7 +30,15 @@ public class ParkingMeter {
     private String street;
     private double occupation;
 
-    private double timeByCar;
+    public double getParkingTimeAddition() {
+        return parkingTimeAddition;
+    }
+
+    public void setParkingTimeAddition(double parkingTimeAddition) {
+        this.parkingTimeAddition = parkingTimeAddition;
+    }
+
+    private double parkingTimeAddition;
 
     //@JsonBackReference
     @JsonIncludeProperties(value = {"name","firstHourPrice","secondHourPrice","thirdHourPrice","fourthHourPrice"})
@@ -44,6 +52,21 @@ public class ParkingMeter {
         this.occupation = occupation;
         this.id = id;
         this.zone = zone;
+
+        if (occupation<=50.0)
+            parkingTimeAddition=2.0*60.0;
+        else if (50.0 < occupation && occupation <= 60.0)
+            parkingTimeAddition=3.0*60.0;
+        else if (60.0 < occupation && occupation <= 70.0)
+            parkingTimeAddition=4.0*60.0;
+        else if (70.0 < occupation && occupation <= 80.0)
+            parkingTimeAddition=5.0*60.0;
+        else if (80.0 < occupation && occupation <= 90.0)
+            parkingTimeAddition=7.0*60.0;
+        else if (90.0 < occupation && occupation <= 94.0)
+            parkingTimeAddition=10.0*60.0;
+        else
+            parkingTimeAddition=15.0*60.0;
     }
 
     public ParkingMeter() {
