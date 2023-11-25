@@ -103,7 +103,9 @@ function initMap(): void {
     infowindowContent.children["place-address"].textContent =
     placeFinish.formatted_address;
     infowindow.open(map, marker);
+    
     calculateAndDisplayRoute(directionsService,directionsRenderer, place.name, placeFinish.name)
+    fetchClosestParkometers(map, placeFinish.geometry.location.lat, placeFinish.geometry.location.lng)
   });
 
   // Sets a listener on a radio button to change the filter type on Places
@@ -161,6 +163,33 @@ document
     input.value = "";
   });
   fetchParkometers(map)
+  }
+
+  async function fetchClosestParkometers(map: google.maps.Map, finishPlaceX, finishPlaceY){
+    const response = await fetch('http://localhost:8090/occupancy?xCordinate=' +finishPlaceX+'&yCordinate=' + finishPlaceY)
+    const json = await response.json()
+      if (response.ok) {
+        console.log(json)
+      }
+    hideMarkers
+
+    new google.maps.Marker({
+      position: { lat: json[0].xCordinate, lng: json[0].yCordinate},
+      map,
+      icon: {
+        path: faSquareParking.icon[4] as string,
+        fillColor: "#fffff",
+        fillOpacity: 1,
+        anchor: new google.maps.Point(
+          faSquareParking.icon[0] / 2, // width
+          faSquareParking.icon[1], // height
+        ),
+        strokeWeight: 1,
+        strokeColor: "#ffffff",
+        scale: 0.075,
+      },
+      title: "Material Icon Font Marker",
+    });
   }
 
 
