@@ -30,6 +30,8 @@ public class ParkingMeter {
     private String street;
     private double occupation;
 
+    private double timeByCar;
+
     //@JsonBackReference
     @JsonIncludeProperties(value = {"name","firstHourPrice","secondHourPrice","thirdHourPrice","fourthHourPrice"})
     @ManyToOne
