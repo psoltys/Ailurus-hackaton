@@ -1,20 +1,35 @@
 {
-  "name": "hack-front",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "name": "marker-simple",
+  "description": "Samples for Google Maps JavaScript",
+  "version": "2.1.4",
+  "keywords": [
+    "google",
+    "javascript",
+    "maps",
+    "samples"
+  ],
+  "homepage": "https://github.com/googlemaps/js-samples#readme",
+  "bugs": {
+    "url": "https://github.com/googlemaps/js-samples/issues"
   },
-  "eslintConfig": {
-    "globals": {
-        "google": "readonly"
-    }
-},
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/googlemaps/js-samples.git"
+  },
+  "files": [],
+  "license": "Apache-2.0",
+  "scripts": {
+    "dev": "vite",
+    "start": "vite",
+    "build": "vite build --outDir dist --base './'",
+    "test": "tsc --no-emit",
+    "preview": "vite preview"
+  },
   "devDependencies": {
-    "@types/google.maps": "^3.54.9"
-  }
+    "@types/google.maps": "^3.53.5",
+    "typescript": "^5.2.2",
+    "vite": "^4.4.9"
+  },
+  "private": true,
+  "dependencies": {}
 }
