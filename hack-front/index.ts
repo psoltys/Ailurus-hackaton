@@ -7,6 +7,7 @@ let markers: google.maps.Marker[] = [];
 let map : google.maps.Map
 let place :google.maps.places.PlaceResult;
 let placeFinish:google.maps.places.PlaceResult;
+let time =0 
 function initMap(): void {
   const directionsService = new google.maps.DirectionsService();
   const directionsRenderer = new google.maps.DirectionsRenderer();
@@ -105,7 +106,7 @@ function initMap(): void {
     infowindow.open(map, marker);
     
     calculateAndDisplayRoute(directionsService,directionsRenderer, place.name, placeFinish.name)
-    fetchClosestParkometers(map, placeFinish.geometry.location.lat, placeFinish.geometry.location.lng)
+    fetchClosestParkometers(map, placeFinish.geometry.location.lat(), placeFinish.geometry.location.lng(), document)
   });
 
   // Sets a listener on a radio button to change the filter type on Places
@@ -165,16 +166,21 @@ document
   fetchParkometers(map)
   }
 
-  async function fetchClosestParkometers(map: google.maps.Map, finishPlaceX, finishPlaceY){
-    const response = await fetch('http://localhost:8090/occupancy?xCordinate=' +finishPlaceX+'&yCordinate=' + finishPlaceY)
+  async function fetchClosestParkometers(map: google.maps.Map, finishPlaceX, finishPlaceY, document:Document){
+    console.log(finishPlaceX)  
+    console.log(finishPlaceY)  
+    const response = await fetch('http://localhost:8090/occupancy?xCordinate='+finishPlaceX+ '&yCordinate='+finishPlaceY)
+    
     const json = await response.json()
       if (response.ok) {
         console.log(json)
       }
+      const parkometer = JSON.parse(JSON.stringify(json))
+
     hideMarkers
 
     new google.maps.Marker({
-      position: { lat: json[0].xCordinate, lng: json[0].yCordinate},
+      position: { lat: parkometer[0].xCordinate, lng: parkometer[0].yCordinate},
       map,
       icon: {
         path: faSquareParking.icon[4] as string,
@@ -190,6 +196,11 @@ document
       },
       title: "Material Icon Font Marker",
     });
+    console.log("czas " + time.toString)
+
+    if(document != undefined){
+    (document as Document)!.getElementById("czas")!.innerHTML = time.toString();
+    }
   }
 
 
@@ -315,7 +326,12 @@ function calculateAndDisplayRoute(
     })
     .then((response) => {
       directionsRenderer.setDirections(response);
-    })
+      var route = response.routes[0]
+      var legs = route?.legs;
+      for(var leg of legs) {
+        time += leg?.duration?.value;
+        console.log(leg?.duration?.value)
+      }    })
     .catch((e) => window.alert("Directions request failed due to " + status));
 }
 
