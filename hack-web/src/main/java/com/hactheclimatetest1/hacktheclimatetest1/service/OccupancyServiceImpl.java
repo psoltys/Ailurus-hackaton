@@ -36,11 +36,11 @@ public class OccupancyServiceImpl implements OccupancyService {
             }
 
         }
-         */
+
         double minDistance = distance(parkingMeterList.get(0).getxCordinate(), xCordinate, parkingMeterList.get(0).getyCordinate(), yCordinate, 0.0, 0.0);
         if (minDistance > maxDistanceToClosestParkingMeter)
             return null;
-        else
+        else */
             return parkingMeterList.subList(0,10);
     }
 
