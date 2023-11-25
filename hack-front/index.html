@@ -8,6 +8,10 @@
       process.env.GOOGLE_MAPS_API_KEY =
         "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg";
     </script>
+        <link
+        href="https://fonts.googleapis.com/icon?family=Material+Icons"
+        rel="stylesheet"
+      />
     <!-- playground-hide-end -->
 
     <link rel="stylesheet" type="text/css" href="./style.css" />
@@ -40,6 +44,9 @@
 
           <input type="radio" name="type" id="changetype-regions" />
           <label for="changetype-regions">(regions)</label>
+          
+        <input id="hide-markers" type="button" value="Hide Markers" />
+        <input id="show-markers" type="button" value="Show Markers" />
         </div>
         <br />
         <div id="strict-bounds-selector" class="pac-controls">
@@ -52,14 +59,19 @@
       </div>
       <div id="pac-container">
         <input id="pac-input" type="text" placeholder="Enter a location" />
-      </div>
+    </div>
+    <div id="pac-container-end">
+
+    <input id="pac-input-end" type="text" placeholder="Enter a location" />
+</div>
+
     </div>
     <div id="map"></div>
     <div id="infowindow-content">
       <span id="place-name" class="title"></span><br />
       <span id="place-address"></span>
     </div>
-
+  
     <!-- 
       The `defer` attribute causes the callback to execute after the full HTML
       document has been parsed. For non-blocking uses, avoiding race conditions,
