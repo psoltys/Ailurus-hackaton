@@ -122,14 +122,27 @@ function initMap(): void {
 
     input.value = "";
   });
+  fetchPokemon()
+}
 
-  const userAction = async () => {
-    const response = await fetch('http://example.com/movies.json');
-    const myJson = await response.json(); //extract JSON from the http response
-    console.log(JSON.parse(myJson))
+
+async function fetchPokemon() {
+
+  const response = await window.fetch('http://localhost:8090/parkingMeters',{ mode: 'no-cors'})
+
+  const {data, errors} = await response.json()
+  if (response.ok) {
+    const pokemon = data?.id
+    if (pokemon) {
+      return pokemon
+    } else {
+      return Promise.reject(new Error(`No pokemon with the name "${name}"`))
+    }
+  } else {
+    // handle the graphql errors
+    const error = new Error(errors?.map(e => e.message).join('\n') ?? 'unknown')
+    return Promise.reject(error)
   }
-  console.log(userAction())
-    
 }
 
 declare global {
