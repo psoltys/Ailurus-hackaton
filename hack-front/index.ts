@@ -342,7 +342,7 @@ document.getElementById('info')!.style.display = 'block';
 
       (document as Document)!.getElementById("czas")!.innerHTML ="Czas:<b> " + Math.round(time + (timeAddition/60)).toString() + " minut </b>(Przejazd "+ time.toString() + "minut; Parking " + Math.round(timeAddition/60).toString()+" minut)";
       (document as Document)!.getElementById("autobus")!.innerHTML = "<b>Autobus:</b> <br> Czas: <b>" + (time).toString() + " minut,</b>";
-      (document as Document)!.getElementById("blinky")!.innerHTML ="<b>Blinky:</b><br>Czas:<b> " + Math.round((time + (time*0.05))).toString() + " minut</b>";
+      (document as Document)!.getElementById("blinky")!.innerHTML ="<b>Blinkee:</b><br>Czas:<b> " + Math.round((time + (time*0.05))).toString() + " minut</b></br> Koszt:"+ Math.round((2.5 + 0.69 *( time + (time*0.05)))) + "zl";
       (document as Document)!.getElementById("cenaBiletu")!.innerHTML ="Koszt: Normalny: 5zl, Ulgowy: 2.50zł";
       (document as Document)!.getElementById("kilometr")!.innerHTML ="Odleglosc: "+kilometers;
 
