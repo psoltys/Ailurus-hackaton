@@ -1,16 +1,20 @@
 // This example requires the Places library. Include the libraries=places
 // parameter when you first load the API. For example:
 // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
-import { faSquareParking } from "@fortawesome/free-solid-svg-icons";
+import { faSquareParking, faBus } from "@fortawesome/free-solid-svg-icons";
 
 let markers: google.maps.Marker[] = [];
 let map : google.maps.Map
 let place :google.maps.places.PlaceResult;
 let placeFinish:google.maps.places.PlaceResult;
-let time =0 
+let time = 0 
+let directionsService :google.maps.DirectionsService
+let directionsRenderer :google.maps.DirectionsRenderer
+let spalanie
 function initMap(): void {
-  const directionsService = new google.maps.DirectionsService();
-  const directionsRenderer = new google.maps.DirectionsRenderer();
+  
+  directionsService = new google.maps.DirectionsService();
+  directionsRenderer = new google.maps.DirectionsRenderer();
   map = new google.maps.Map(
     document.getElementById("map") as HTMLElement,
     {
@@ -19,18 +23,13 @@ function initMap(): void {
       mapTypeControl: false,
     },
   );
-
   directionsRenderer.setMap(map);
 
   const card = document.getElementById("pac-card") as HTMLElement;
   const input = document.getElementById("pac-input") as HTMLInputElement;
   const inputEnd = document.getElementById("pac-input-end") as HTMLInputElement;
-  const biasInputElement = document.getElementById(
-    "use-location-bias",
-  ) as HTMLInputElement;
-  const strictBoundsInputElement = document.getElementById(
-    "use-strict-bounds",
-  ) as HTMLInputElement;
+  const info = document.getElementById('info') as HTMLElement; 
+info.style.display = 'none';
   const options = {
     fields: ["formatted_address", "geometry", "name"],
     strictBounds: false,
@@ -100,14 +99,11 @@ function initMap(): void {
     markerFinish.setPosition(placeFinish.geometry.location);
     markerFinish.setVisible(true);
 
-    infowindowContent.children["place-name"].textContent = placeFinish.name;
-    infowindowContent.children["place-address"].textContent =
-    placeFinish.formatted_address;
-    infowindow.open(map, marker);
+   fetchClosestParkometers(map, placeFinish.geometry.location.lat(), placeFinish.geometry.location.lng());
     
-    calculateAndDisplayRoute(directionsService,directionsRenderer, place.name, placeFinish.name)
-    fetchClosestParkometers(map, placeFinish.geometry.location.lat(), placeFinish.geometry.location.lng(), document)
+
   });
+  
 
   // Sets a listener on a radio button to change the filter type on Places
   // Autocomplete.
@@ -120,13 +116,6 @@ function initMap(): void {
     });
   }
 
-  setupClickListener("changetype-all", []);
-  setupClickListener("changetype-address", ["address"]);
-  setupClickListener("changetype-establishment", ["establishment"]);
-  setupClickListener("changetype-geocode", ["geocode"]);
-  setupClickListener("changetype-cities", ["(cities)"]);
-  setupClickListener("changetype-regions", ["(regions)"]);
-
   document
   .getElementById("show-markers")!
   .addEventListener("click", showMarkers);
@@ -134,39 +123,10 @@ document
   .getElementById("hide-markers")!
   .addEventListener("click", hideMarkers);
 
-
-  biasInputElement.addEventListener("change", () => {
-    if (biasInputElement.checked) {
-      autocomplete.bindTo("bounds", map);
-    } else {
-      // User wants to turn off location bias, so three things need to happen:
-      // 1. Unbind from map
-      // 2. Reset the bounds to whole world
-      // 3. Uncheck the strict bounds checkbox UI (which also disables strict bounds)
-      autocomplete.unbind("bounds");
-      autocomplete.setBounds({ east: 180, west: -180, north: 90, south: -90 });
-      strictBoundsInputElement.checked = biasInputElement.checked;
-    }
-
-    input.value = "";
-  });
-
-  strictBoundsInputElement.addEventListener("change", () => {
-    autocomplete.setOptions({
-      strictBounds: strictBoundsInputElement.checked,
-    });
-
-    if (strictBoundsInputElement.checked) {
-      biasInputElement.checked = strictBoundsInputElement.checked;
-      autocomplete.bindTo("bounds", map);
-    }
-
-    input.value = "";
-  });
   fetchParkometers(map)
   }
 
-  async function fetchClosestParkometers(map: google.maps.Map, finishPlaceX, finishPlaceY, document:Document){
+  async function fetchClosestParkometers(map: google.maps.Map, finishPlaceX, finishPlaceY){
     console.log(finishPlaceX)  
     console.log(finishPlaceY)  
     const response = await fetch('http://localhost:8090/occupancy?xCordinate='+finishPlaceX+ '&yCordinate='+finishPlaceY)
@@ -177,9 +137,9 @@ document
       }
       const parkometer = JSON.parse(JSON.stringify(json))
 
-    hideMarkers
-
-    new google.maps.Marker({
+    hideMarkers()
+   
+    var marker = new google.maps.Marker({
       position: { lat: parkometer[0].xCordinate, lng: parkometer[0].yCordinate},
       map,
       icon: {
@@ -196,11 +156,14 @@ document
       },
       title: "Material Icon Font Marker",
     });
-    console.log("czas " + time.toString)
+    markers.push(marker)
+    var parokmetr = new google.maps.LatLng(parkometer[0].xCordinate, parkometer[0].yCordinate);
 
-    if(document != undefined){
-    (document as Document)!.getElementById("czas")!.innerHTML = time.toString();
-    }
+    calculateAndDisplayRoute(directionsService,directionsRenderer, place.name, placeFinish.name, parokmetr, parkometer[0].parkingTimeAddition,
+      parkometer[0].zone.firstHourPrice +   parkometer[0].zone.secondHourPrice);
+
+    console.log(parokmetr.toString())
+
   }
 
 
@@ -234,18 +197,18 @@ var coordsGreen: google.maps.LatLngLiteral[]=[]
       },
       title: "Material Icon Font Marker",
     });
- if(park.zone.name === "ZIELONA"){
-  coordsGreen.push({lat: park.xCordinate, lng: park.yCordinate})
- }
- if(park.zone.name === "POMARAŃCZOWA"){
-  coordsOrange.push({lat: park.xCordinate, lng: park.yCordinate})
- }
- if(park.zone.name === "NIEBIESKA"){
-  coordsBlue.push({lat: park.xCordinate, lng: park.yCordinate})
- }
- if(park.zone.name === "CZERWONA"){
-  coordsRed.push({lat: park.xCordinate, lng: park.yCordinate})
- }
+//  if(park.zone.name === "ZIELONA"){
+//   coordsGreen.push({lat: park.xCordinate, lng: park.yCordinate})
+//  }
+//  if(park.zone.name === "POMARAŃCZOWA"){
+//   coordsOrange.push({lat: park.xCordinate, lng: park.yCordinate})
+//  }
+//  if(park.zone.name === "NIEBIESKA"){
+//   coordsBlue.push({lat: park.xCordinate, lng: park.yCordinate})
+//  }
+//  if(park.zone.name === "CZERWONA"){
+//   coordsRed.push({lat: park.xCordinate, lng: park.yCordinate})
+//  }
 
  markers.push(marker);
 }
@@ -312,27 +275,79 @@ function showMarkers(): void {
 function calculateAndDisplayRoute(
   directionsService: google.maps.DirectionsService,
   directionsRenderer: google.maps.DirectionsRenderer,
-  start,finish
+  start,finish,closestParkometer, timeAddition, parkingPrice
 ) {
+  console.log(closestParkometer.lat())
+  console.log(parkingPrice)
+  var kilometers
+  var kilometersValue
   directionsService
     .route({
-      origin: {
-        query: start,
-      },
-      destination: {
-        query: finish,
-      },
+      origin:  start,
+      destination: closestParkometer,
+      waypoints:[{location: finish, stopover: false}],
+      optimizeWaypoints: true,
       travelMode: google.maps.TravelMode.DRIVING,
     })
     .then((response) => {
+      time = 0
       directionsRenderer.setDirections(response);
       var route = response.routes[0]
       var legs = route?.legs;
       for(var leg of legs) {
-        time += leg?.duration?.value;
+        time += Math.round(leg?.duration?.value/60);
         console.log(leg?.duration?.value)
-      }    })
-    .catch((e) => window.alert("Directions request failed due to " + status));
+        console.log(leg?.distance?.value)
+        
+        console.log(leg?.distance)
+        kilometers = leg?.distance?.text
+        kilometersValue = leg?.distance?.value
+      }  
+var e = document.getElementById("cars") as HTMLSelectElement;
+var text = e.options[e.selectedIndex].text;
+console.log(text)
+console.log(kilometersValue)
+
+if(text === "Mini"){
+  spalanie = Math.round((kilometersValue/1000) * (0.06630 * 6.5))
+}
+if(text === "Compact"){
+  spalanie = Math.round((kilometersValue/1000) * (0.07100 * 6.5))
+}
+if(text === "SUV"){
+  spalanie = Math.round((kilometersValue/1000) * (0.10000 * 6.5))
+}
+var calosc = parkingPrice + spalanie;
+(document as Document)!.getElementById("cena")!.innerHTML = "Koszt: " + calosc+ " (Parking 2h: " + parkingPrice + " zł" + " Paliwo: " + spalanie + " zł)";
+
+e.addEventListener("change",function (t){
+  var text = e.options[e.selectedIndex].text;
+  console.log(text)
+  console.log(kilometersValue)
+  
+  if(text === "Mini"){
+    spalanie = Math.round((kilometersValue/1000) * (0.06630 * 6.5))
+  }
+  if(text === "Compact"){
+    spalanie = Math.round((kilometersValue/1000) * (0.07100 * 6.5))
+  }
+  if(text === "SUV"){
+    spalanie = Math.round((kilometersValue/1000) * (0.10000 * 6.5))
+  }
+  var calosc = parkingPrice + spalanie;
+  (document as Document)!.getElementById("cena")!.innerHTML = "Koszt: " + calosc+ " (Parking 2h: " + parkingPrice + " zł" + " Paliwo: " + spalanie + " zł)";
+
+});
+document.getElementById('info')!.style.display = 'block';
+
+      (document as Document)!.getElementById("czas")!.innerHTML ="Czas:<b> " + Math.round(time + (timeAddition/60)).toString() + " minut </b>(Przejazd "+ time.toString() + "minut; Parking " + Math.round(timeAddition/60).toString()+" minut)";
+      (document as Document)!.getElementById("autobus")!.innerHTML = "<b>Autobus:</b> <br> Czas: <b>" + (time).toString() + " minut,</b>";
+      (document as Document)!.getElementById("blinky")!.innerHTML ="<b>Blinky:</b><br>Czas:<b> " + Math.round((time + (time*0.05))).toString() + " minut</b>";
+      (document as Document)!.getElementById("cenaBiletu")!.innerHTML ="Koszt: Normalny: 5zl, Ulgowy: 2.50zł";
+      (document as Document)!.getElementById("kilometr")!.innerHTML ="Odleglosc: "+kilometers;
+
+    })
+    .catch((e) => window.alert("Directions request failed due to " + status + e));
 }
 
 
