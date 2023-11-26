@@ -7,12 +7,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-
+@CrossOrigin
 @RestController
 public class FuelConsumptionController {
     @Autowired private FuelConsumption fuelConsumption;
 
-    @CrossOrigin(origins = "http://localhost:8080")
+    //@CrossOrigin(origins = "http://localhost:8080")
     @GetMapping("/calculateFuelConsumption")
     public Double CalculateFuelConsumption(@RequestParam int carSize, @RequestParam Double distance)
     {
