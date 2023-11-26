@@ -16,6 +16,6 @@ public class FuelConsumptionController {
     @GetMapping("/calculateFuelConsumption")
     public Double CalculateFuelConsumption(@RequestParam int carSize, @RequestParam Double distance)
     {
-        return fuelConsumption.CalculateFuelConsumption(carSize, distance);
+        return Math.round(100.0* fuelConsumption.CalculateFuelConsumption(carSize, distance))/100.0;
     }
 }
