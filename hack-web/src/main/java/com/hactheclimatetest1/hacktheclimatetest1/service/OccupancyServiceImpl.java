@@ -23,7 +23,7 @@ public class OccupancyServiceImpl implements OccupancyService {
     {
         ParkingMeter closestParkingMeter = null;
         List<ParkingMeter> parkingMeterList = parkingMeterRepository.findAll();
-        parkingMeterList= parkingMeterList.stream().filter(parkingMeter -> parkingMeter.getOccupation() < 90.0).collect(Collectors.toList());
+        //parkingMeterList= parkingMeterList.stream().filter(parkingMeter -> parkingMeter.getOccupation() < 90.0).collect(Collectors.toList());
         parkingMeterList.sort(Comparator.comparingDouble(p -> distance(p.getxCordinate(), xCordinate, p.getyCordinate(), yCordinate, 0.0, 0.0)));
         return parkingMeterList.subList(0,10);
     }
